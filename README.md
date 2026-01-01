@@ -150,7 +150,37 @@ For production-grade workflows, consider templating (Helm/Kustomize), health pro
 - Configure PR-related triggers if you want builds on pull requests.
 
 ---
+## Local webhook forwarding (ngrok)
 
+For local Jenkins instances that are not reachable by GitHub, you can use ngrok to expose a local webhook endpoint and update the GitHub webhook automatically.
+
+This repository includes `ngrok_github_webhook.py`, a small helper to:
+
+- Create an ngrok tunnel and print the public URL
+- Patch the GitHub webhook to point to the ngrok URL
+
+Setup:
+
+1. Copy `.env.example` to `.env` and fill in values (DO NOT COMMIT `.env`).
+2. Install dependencies:
+
+```bash
+pip install pyngrok python-dotenv requests
+```
+
+3. Run the script:
+
+```bash
+python ngrok_github_webhook.py
+```
+
+Security and notes:
+
+- The script reads sensitive tokens from environment variables (via `.env`) and will exit if required variables are missing.
+- `.gitignore` already excludes `.env` and ngrok state files.
+- For production, prefer using a secure secrets manager and avoid long-lived personal access tokens.
+
+---
 ## Expected pipeline stages (from `Jenkinsfile`)
 
 1. Checkout — pull the repository
