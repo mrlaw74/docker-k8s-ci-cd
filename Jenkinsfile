@@ -51,13 +51,16 @@ pipeline {
     }
 
     stage('Deploy to Kubernetes') {
-      steps {
-        sh '''
-          sed -i 's|DOCKER_IMAGE|${DOCKER_IMAGE}:${IMAGE_TAG}|' k8s/deployment.yaml
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-        '''
-      }
+        steps {
+            withCredentials([file(credentialsId: 'kubeconfig-minikube', variable: 'KUBECONFIG')]) {
+                sh '''
+                export KUBECONFIG=$KUBECONFIG
+                kubectl get nodes
+                sed -i "s|DOCKER_IMAGE|${DOCKER_IMAGE}:${IMAGE_TAG}|g" k8s/deployment.yaml
+                kubectl apply -f k8s/deployment.yaml
+                '''
+            }
+        }
     }
   }
 }
