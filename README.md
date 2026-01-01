@@ -212,5 +212,3 @@ docker image rm <your-image>
 ```
 
 ---
-
-If you'd like, I can add a checklist of required Jenkins credential IDs and example values (Credential type and sample ID) to make setup quicker—tell me and I'll append it as a short section.
