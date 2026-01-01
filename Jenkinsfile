@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_USER  = "mrlaw"   // 👈 đổi thành user của bạn
+    DOCKER_USER  = "mrlaw"
     DOCKER_IMAGE = "mrlaw/hello-app"
     IMAGE_TAG    = "snapshot-${BUILD_NUMBER}"
   }
