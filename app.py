@@ -19,14 +19,16 @@ class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    is_completed = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'<Note {self.title}>'
 
-# Create tables
+# Create tables - drop old schema and recreate with new columns
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
 # Routes
@@ -81,6 +83,14 @@ def delete_note(id):
     db.session.delete(note)
     db.session.commit()
     flash('Note deleted successfully!', 'success')
+    return redirect(url_for('index'))
+
+@app.route("/toggle/<int:id>", methods=['POST'])
+def toggle_todo(id):
+    """Toggle todo completion status"""
+    note = Note.query.get_or_404(id)
+    note.is_completed = not note.is_completed
+    db.session.commit()
     return redirect(url_for('index'))
 
 @app.route("/health")

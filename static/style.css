@@ -97,6 +97,44 @@ body {
     opacity: 0.9;
 }
 
+/* Dashboard Header */
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 /* Notes Grid */
 .todos-grid {
     display: grid;
@@ -110,12 +148,48 @@ body {
     border-radius: 10px;
     padding: 1.5rem;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+    border-left: 5px solid var(--primary);
+}
+
+.todo-card.completed {
+    opacity: 0.8;
+    border-left-color: var(--success);
 }
 
 .todo-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.todo-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--light);
+}
+
+.todo-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--success);
+}
+
+.todo-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    background: var(--light);
+    color: var(--text);
+}
+
+.todo-card.completed .todo-status {
+    background: rgba(39, 174, 96, 0.2);
+    color: var(--success);
 }
 
 .todo-header {
@@ -131,12 +205,24 @@ body {
     font-size: 1.2rem;
     color: var(--secondary);
     flex: 1;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.todo-card.completed .todo-header h2 {
+    text-decoration: line-through;
+    color: #95a5a6;
 }
 
 .todo-date {
     font-size: 0.85rem;
     color: #7f8c8d;
     white-space: nowrap;
+    transition: color 0.3s;
+}
+
+.todo-card.completed .todo-content {
+    color: #95a5a6;
 }
 
 .todo-content {

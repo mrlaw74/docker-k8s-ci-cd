@@ -9,9 +9,37 @@
 </div>
 
 {% if notes %}
+    <div class="dashboard-header">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ notes|length }}</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ notes|selectattr('is_completed', 'equalto', True)|list|length }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ notes|selectattr('is_completed', 'equalto', False)|list|length }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+    </div>
+
     <div class="todos-grid">
         {% for note in notes %}
-            <div class="todo-card">
+            <div class="todo-card {% if note.is_completed %}completed{% endif %}">
+                <div class="todo-checkbox-wrapper">
+                    <form method="POST" action="{{ url_for('toggle_todo', id=note.id) }}" style="display:inline;">
+                        <input 
+                            type="checkbox" 
+                            class="todo-checkbox" 
+                            {% if note.is_completed %}checked{% endif %}
+                            onchange="this.form.submit()"
+                        >
+                    </form>
+                    <span class="todo-status">{% if note.is_completed %}✓ Done{% else %}○ Pending{% endif %}</span>
+                </div>
                 <div class="todo-header">
                     <h2>{{ note.title }}</h2>
                     <span class="todo-date">{{ note.created_at.strftime('%b %d, %Y') }}</span>
