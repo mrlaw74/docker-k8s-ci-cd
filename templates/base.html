@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Notes App{% endblock %}</title>
+    <title>{% block title %}Todo App{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="{{ url_for('index') }}" class="logo">📝 Notes App</a>
+            <a href="{{ url_for('index') }}" class="logo">✅ Todo App</a>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('index') }}">Home</a></li>
                 <li><a href="{{ url_for('add_note') }}" class="btn-add">+ Add Note</a></li>
@@ -33,7 +33,7 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2026 Notes App | Built with Flask & Docker + Kubernetes</p>
+        <p>&copy; 2026 Todo App | Built with Flask & Docker + Kubernetes</p>
     </footer>
 </body>
 </html>

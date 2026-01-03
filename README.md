@@ -1,6 +1,6 @@
-# Hello Docker — CI/CD POC (Jenkins → Docker Hub → Kubernetes)
+# Todo App — CI/CD POC (Jenkins → Docker Hub → Kubernetes)
 
-A compact DevOps proof-of-concept demonstrating a Jenkins pipeline that builds a Docker image from a simple Flask "Hello" application, pushes it to Docker Hub, and deploys to a local Kubernetes cluster (Minikube). The pipeline is triggered from GitHub (webhook) and runs on a local Jenkins instance at `http://localhost:8080`.
+A professional DevOps proof-of-concept demonstrating a Jenkins pipeline that builds a Docker image from a feature-rich Flask Todo application, pushes it to Docker Hub, and deploys to a local Kubernetes cluster (Minikube). The pipeline is triggered from GitHub (webhook) and runs on a local Jenkins instance at `http://localhost:8080`.
 
 ---
 
@@ -20,7 +20,7 @@ A compact DevOps proof-of-concept demonstrating a Jenkins pipeline that builds a
 ---
 
 ## Project overview
-This repository demonstrates a simple CI/CD flow optimized for local POC and review:
+This repository demonstrates a professional CI/CD flow with a real-world Todo application:
 
 - Source: GitHub (trigger via webhook)
 - CI/CD: Jenkins Pipeline (defined in `Jenkinsfile`)
@@ -28,7 +28,7 @@ This repository demonstrates a simple CI/CD flow optimized for local POC and rev
 - Registry: Docker Hub (image tagging and pushes from Jenkins)
 - Deploy: Kubernetes (Minikube) via `kubectl` applied from Jenkins using a kubeconfig secret
 
-The application is a minimal Flask app (`app.py`) listening on port `5000`.
+The application is a feature-rich Flask Todo App (`app.py`) with SQLite database, CRUD operations, and responsive UI, listening on port `5000`.
 
 ---
 
@@ -50,16 +50,18 @@ Notes:
 
 ## Repository layout
 
-- `app.py` — Flask application (port `5000`)
+- `app.py` — Flask Todo application with SQLAlchemy ORM (port `5000`)
 - `Dockerfile` — builds the container image
 - `Jenkinsfile` — declarative pipeline for CI/CD
 - `k8s/deployment.yaml` — Deployment manifest (uses placeholder `DOCKER_IMAGE`)
 - `k8s/service.yaml` — Service manifest (NodePort mapping to container port 5000)
 - `requirements.txt` — Python dependencies
+- `templates/` — HTML templates (base, index, add_note)
+- `static/` — CSS styling for responsive UI
 
 Important resources in manifests:
-- Deployment name: `hello-app`
-- Service name: `hello-service`
+- Deployment name: `todo-app`
+- Service name: `todo-service`
 - Container port: `5000`
 
 ---
@@ -68,9 +70,7 @@ Important resources in manifests:
 
 1. Clone repository
 
-```bash
-git clone <repo-url>
-cd hello-docker-k8s-ci-cd
+```todo-app
 ```
 
 2. Run locally without Docker
@@ -84,8 +84,8 @@ python app.py
 3. Build & run with Docker
 
 ```bash
-docker build -t <your-dockerhub-user>/hello-app:local .
-docker run --rm -p 5000:5000 <your-dockerhub-user>/hello-app:local
+docker build -t mrlaw/todo_app:local .
+docker run --rm -p 5000:5000 mrlaw/todo_app:local
 # Open http://localhost:5000
 ```
 
@@ -94,8 +94,10 @@ docker run --rm -p 5000:5000 <your-dockerhub-user>/hello-app:local
 ```bash
 minikube start
 kubectl apply -f k8s/
+minikube service todo-service --url
+# Or: kubectl port-forward svc/tod
 minikube service hello-service --url
-# Or: kubectl port-forward svc/hello-service 8080:80
+# Or: kubectl port-forward svc/todo-service 8080:80
 # Open the URL returned or http://localhost:8080
 ```
 
@@ -124,7 +126,7 @@ Note: `k8s/deployment.yaml` contains `image: DOCKER_IMAGE` which the pipeline re
    - Ensure the job accepts GitHub webhooks (verify the GitHub plugin and webhook settings).
 
 5. Verify environment variables in `Jenkinsfile`
-   - `DOCKER_USER`, `DOCKER_IMAGE` (e.g., `mrlaw/hello-app`), and `IMAGE_TAG` are set in the file. Update them to match your Docker Hub username or configure them as job-level or global env vars.
+   - `DOCKER_USER = "mrlaw"`, `DOCKER_IMAGE = "mrlaw/todo_app"`, and `IMAGE_TAG = "snapshot-${BUILD_NUMBER}"` are configured. Update to match your Docker Hub username if needed.
 
 Security note: Use Jenkins credentials and avoid hardcoding secrets.
 
@@ -137,7 +139,7 @@ Security note: Use Jenkins credentials and avoid hardcoding secrets.
   - `service.yaml` exposes the app via a `NodePort` on port `80` → `targetPort: 5000`.
 - Deployment strategy in the pipeline: modify manifest to reference the new image and run `kubectl apply -f k8s/deployment.yaml`.
 - Access:
-  - `minikube service hello-service --url` or `kubectl port-forward` for local testing.
+  - `minikube service todo-service --url` or `kubectl port-forward` for local testing.
 
 For production-grade workflows, consider templating (Helm/Kustomize), health probes, and proper rollout/rollback strategies.
 

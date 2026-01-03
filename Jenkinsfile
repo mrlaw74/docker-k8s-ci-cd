@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     DOCKER_USER  = "mrlaw"
-    DOCKER_IMAGE = "mrlaw/hello-app"
+    DOCKER_IMAGE = "mrlaw/todo_app"
     IMAGE_TAG    = "snapshot-${BUILD_NUMBER}"
   }
 
