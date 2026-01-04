@@ -6,7 +6,7 @@ A professional DevOps proof-of-concept demonstrating a Jenkins pipeline that bui
 
 ## Table of Contents
 - [Project Overview](#project-overview)
-- [Architecture (text diagram)](#architecture-text-diagram)
+- [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [Repository layout](#repository-layout)
 - [Local setup](#local-setup)
@@ -29,6 +29,32 @@ This repository demonstrates a professional CI/CD flow with a real-world Todo ap
 - Deploy: Kubernetes (Minikube) via `kubectl` applied from Jenkins using a kubeconfig secret
 
 The application is a feature-rich Flask Todo App (`app.py`) with SQLite database, CRUD operations, and responsive UI, listening on port `5000`.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Dev[Developer<br/>git push] -->|commit| GitHub[GitHub Repository]
+
+    GitHub -->|Webhook<br/>push event| Jenkins[Jenkins<br/>localhost:8080]
+
+    Jenkins -->|docker build| DockerBuild[Build Docker Image]
+    DockerBuild -->|docker login| DockerAuth[Docker Hub Credentials]
+    DockerBuild -->|docker push| DockerHub[Docker Hub<br/>mrlaw/todo_app]
+
+    Jenkins -->|kubectl apply| K8s[Kubernetes<br/>Minikube Cluster]
+
+    DockerHub -->|image pull| K8s
+
+    K8s --> Deployment[Deployment<br/>todo-app]
+    Deployment --> Pod[Pod<br/>Flask App :5000]
+
+    Pod --> Service[Service<br/>NodePort 80 → 5000]
+
+    Service --> User[User Browser<br/>minikube service<br/>or port-forward]
+```
 
 ---
 
@@ -70,7 +96,9 @@ Important resources in manifests:
 
 1. Clone repository
 
-```todo-app
+```bash
+git clone https://github.com/mrlaw74/docker-k8s-ci-cd.git
+cd docker-k8s-ci-cd
 ```
 
 2. Run locally without Docker
