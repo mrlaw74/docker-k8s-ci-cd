@@ -7,6 +7,7 @@ A professional DevOps proof-of-concept demonstrating a Jenkins pipeline that bui
 ## Table of Contents
 - [Project Overview](#project-overview)
 - [Architecture](#architecture)
+- [Sequence Diagram](#sequence-diagram)
 - [Prerequisites](#prerequisites)
 - [Repository layout](#repository-layout)
 - [Local setup](#local-setup)
@@ -35,25 +36,59 @@ The application is a feature-rich Flask Todo App (`app.py`) with SQLite database
 ## Architecture
 
 ```mermaid
-flowchart LR
-    Dev[Developer<br/>git push] -->|commit| GitHub[GitHub Repository]
+flowchart TB
+    %% =====================
+    %% Row 1 — CI/CD Control
+    %% =====================
+    Dev[👨‍💻 Developer<br/>git push]
+    GitHub[🐙 GitHub<br/>Repository]
+    Jenkins[🧰 Jenkins<br/>CI/CD]
+    DockerHub[🐳 Docker Hub<br/>mrlaw/todo_app]
 
-    GitHub -->|Webhook<br/>push event| Jenkins[Jenkins<br/>localhost:8080]
+    %% =====================
+    %% Row 2 — Runtime Layer
+    %% =====================
+    subgraph K8s["☸️ Kubernetes (Minikube)"]
+        Deploy[Deployment<br/>todo-app]
+        Pod[Pod<br/>Flask App :5000]
+        Service[Service<br/>NodePort 80 → 5000]
+    end
 
-    Jenkins -->|docker build| DockerBuild[Build Docker Image]
-    DockerBuild -->|docker login| DockerAuth[Docker Hub Credentials]
-    DockerBuild -->|docker push| DockerHub[Docker Hub<br/>mrlaw/todo_app]
+    User[🌐 User Browser]
 
-    Jenkins -->|kubectl apply| K8s[Kubernetes<br/>Minikube Cluster]
+    %% ===== Control flow =====
+    Dev -->|commit| GitHub
+    GitHub -->|Webhook| Jenkins
+    Jenkins -->|build & push image| DockerHub
 
-    DockerHub -->|image pull| K8s
+    %% ===== Deploy flow =====
+    Jenkins -->|kubectl apply| Deploy
+    DockerHub -->|image pull| Deploy
 
-    K8s --> Deployment[Deployment<br/>todo-app]
-    Deployment --> Pod[Pod<br/>Flask App :5000]
+    %% ===== Runtime traffic =====
+    Deploy --> Pod
+    Pod --> Service
+    Service --> User
+```
 
-    Pod --> Service[Service<br/>NodePort 80 → 5000]
+## Sequence Diagram
 
-    Service --> User[User Browser<br/>minikube service<br/>or port-forward]
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant GH as GitHub
+    participant J as Jenkins
+    participant DH as Docker Hub
+    participant K8s as Kubernetes (Minikube)
+    participant U as User
+
+    Dev->>GH: git push
+    GH->>J: webhook (push)
+    J->>J: build Docker image
+    J->>DH: push image
+    J->>K8s: kubectl apply
+    K8s->>DH: pull image
+    K8s->>U: expose service (NodePort)
 ```
 
 ---
