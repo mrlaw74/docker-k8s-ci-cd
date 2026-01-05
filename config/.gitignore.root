@@ -1,0 +1,22 @@
+.env
+.env.local
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+.eggs/
+*.egg-info/
+.pytest_cache/
+# IDE
+.vscode/
+.idea/
+
+# pyngrok and ngrok state
+.ngrok2/
+pyngrok.log

@@ -111,14 +111,23 @@ Notes:
 
 ## Repository layout
 
-- `app.py` — Flask Todo application with SQLAlchemy ORM (port `5000`)
-- `Dockerfile` — builds the container image
-- `Jenkinsfile` — declarative pipeline for CI/CD
-- `k8s/deployment.yaml` — Deployment manifest (uses placeholder `DOCKER_IMAGE`)
-- `k8s/service.yaml` — Service manifest (NodePort mapping to container port 5000)
-- `requirements.txt` — Python dependencies
-- `templates/` — HTML templates (base, index, add_note)
-- `static/` — CSS styling for responsive UI
+- `src/` — Source code
+  - `app.py` — Flask Todo application with SQLAlchemy ORM (port `5000`)
+  - `ngrok_github_webhook.py` — GitHub webhook automation for ngrok tunneling
+  - `ngrok_server.py` — Local ngrok server helper
+- `config/` — Configuration files
+  - `.env.example` — Environment variables template
+  - `requirements.txt` — Python dependencies
+  - `k8s/` — Kubernetes manifests
+    - `deployment.yaml` — Deployment manifest (uses placeholder `DOCKER_IMAGE`)
+    - `service.yaml` — Service manifest (NodePort mapping to container port 5000)
+- `docker/` — Docker configuration
+  - `Dockerfile` — Container image builder
+- `ci/` — CI/CD configuration
+  - `Jenkinsfile` — Jenkins declarative pipeline for CI/CD
+- `public/` — Frontend assets
+  - `static/` — CSS styling for responsive UI
+  - `templates/` — HTML templates (base.html, index.html, add_note.html)
 
 Important resources in manifests:
 - Deployment name: `todo-app`
@@ -139,15 +148,15 @@ cd docker-k8s-ci-cd
 2. Run locally without Docker
 
 ```bash
-python -m pip install -r requirements.txt
-python app.py
+python -m pip install -r config/requirements.txt
+python src/app.py
 # Open http://localhost:5000
 ```
 
 3. Build & run with Docker
 
 ```bash
-docker build -t mrlaw/todo_app:local .
+docker build -f docker/Dockerfile -t mrlaw/todo_app:local .
 docker run --rm -p 5000:5000 mrlaw/todo_app:local
 # Open http://localhost:5000
 ```
@@ -156,15 +165,13 @@ docker run --rm -p 5000:5000 mrlaw/todo_app:local
 
 ```bash
 minikube start
-kubectl apply -f k8s/
+kubectl apply -f config/k8s/
 minikube service todo-service --url
-# Or: kubectl port-forward svc/tod
-minikube service hello-service --url
 # Or: kubectl port-forward svc/todo-service 8080:80
 # Open the URL returned or http://localhost:8080
 ```
 
-Note: `k8s/deployment.yaml` contains `image: DOCKER_IMAGE` which the pipeline replaces with the built image tag prior to `kubectl apply`.
+Note: `config/k8s/deployment.yaml` contains `image: DOCKER_IMAGE` which the pipeline replaces with the built image tag prior to `kubectl apply`.
 
 ---
 
@@ -186,6 +193,7 @@ Note: `k8s/deployment.yaml` contains `image: DOCKER_IMAGE` which the pipeline re
 
 4. Pipeline job
    - Create a Pipeline job that uses the repository and the included `Jenkinsfile`.
+   - Set **Script Path** to `ci/Jenkinsfile` (pointing to the pipeline file location)
    - Ensure the job accepts GitHub webhooks (verify the GitHub plugin and webhook settings).
 
 5. Verify environment variables in `Jenkinsfile`
@@ -197,10 +205,10 @@ Security note: Use Jenkins credentials and avoid hardcoding secrets.
 
 ## Kubernetes deployment explanation
 
-- Manifests: `k8s/deployment.yaml` and `k8s/service.yaml`.
+- Manifests: `config/k8s/deployment.yaml` and `config/k8s/service.yaml`.
   - `deployment.yaml` has a placeholder `DOCKER_IMAGE` that the pipeline replaces with the built image (`${DOCKER_IMAGE}:${IMAGE_TAG}`).
   - `service.yaml` exposes the app via a `NodePort` on port `80` → `targetPort: 5000`.
-- Deployment strategy in the pipeline: modify manifest to reference the new image and run `kubectl apply -f k8s/deployment.yaml`.
+- Deployment strategy in the pipeline: modify manifest to reference the new image and run `kubectl apply -f config/k8s/deployment.yaml`.
 - Access:
   - `minikube service todo-service --url` or `kubectl port-forward` for local testing.
 
@@ -219,14 +227,14 @@ For production-grade workflows, consider templating (Helm/Kustomize), health pro
 
 For local Jenkins instances that are not reachable by GitHub, you can use ngrok to expose a local webhook endpoint and update the GitHub webhook automatically.
 
-This repository includes `ngrok_github_webhook.py`, a small helper to:
+This repository includes `src/ngrok_github_webhook.py`, a small helper to:
 
 - Create an ngrok tunnel and print the public URL
 - Patch the GitHub webhook to point to the ngrok URL
 
 Setup:
 
-1. Copy `.env.example` to `.env` and fill in values (DO NOT COMMIT `.env`).
+1. Copy `config/.env.example` to `config/.env` and fill in values (DO NOT COMMIT `config/.env`).
 2. Install dependencies:
 
 ```bash
@@ -236,13 +244,13 @@ pip install pyngrok python-dotenv requests
 3. Run the script:
 
 ```bash
-python ngrok_github_webhook.py
+python src/ngrok_github_webhook.py
 ```
 
 Security and notes:
 
-- The script reads sensitive tokens from environment variables (via `.env`) and will exit if required variables are missing.
-- `.gitignore` already excludes `.env` and ngrok state files.
+- The script reads sensitive tokens from environment variables (via `config/.env`) and will exit if required variables are missing.
+- `.gitignore` already excludes `config/.env` and ngrok state files.
 - For production, prefer using a secure secrets manager and avoid long-lived personal access tokens.
 
 ---

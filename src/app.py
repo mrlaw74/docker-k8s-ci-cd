@@ -3,11 +3,20 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
 
-app = Flask(__name__)
+# Get project root (parent of src directory)
+basedir = os.path.abspath(os.path.dirname(__file__))
+project_root = os.path.dirname(basedir)
+
+# Initialize Flask with correct template and static paths
+app = Flask(
+    __name__,
+    template_folder=os.path.join(project_root, 'public', 'templates'),
+    static_folder=os.path.join(project_root, 'public', 'static')
+)
 
 # Configuration
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "todo.db")}'
+db_path = os.path.join(project_root, 'todo.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
 

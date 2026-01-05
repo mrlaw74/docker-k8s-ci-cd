@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Todo App - Home{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <h1>My Todos</h1>
+    
+    {% if notes %}
+        <div class="notes-grid">
+            {% for note in notes %}
+            <div class="note-card {% if note.is_completed %}completed{% endif %}">
+                <div class="note-header">
+                    <h3>{{ note.title }}</h3>
+                    <span class="note-date">{{ note.created_at.strftime('%d %b %Y') }}</span>
+                </div>
+                
+                <p class="note-content">{{ note.content[:100] }}{% if note.content|length > 100 %}...{% endif %}</p>
+                
+                <div class="note-actions">
+                    <form method="POST" action="{{ url_for('toggle_todo', id=note.id) }}" style="display:inline;">
+                        <button type="submit" class="btn {% if note.is_completed %}btn-uncomplete{% else %}btn-complete{% endif %}">
+                            {% if note.is_completed %}✓ Done{% else %}Mark Done{% endif %}
+                        </button>
+                    </form>
+                    <a href="{{ url_for('edit_note', id=note.id) }}" class="btn btn-edit">Edit</a>
+                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No todos yet. <a href="{{ url_for('add_note') }}">Create one now!</a></p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

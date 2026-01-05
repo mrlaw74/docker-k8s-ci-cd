@@ -13,7 +13,10 @@ import os
 import logging
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env from config directory
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_file = os.path.join(project_root, 'config', '.env.example')
+load_dotenv(env_file)
 
 NGROK_AUTH_TOKEN = os.getenv("NGROK_AUTH_TOKEN")
 LOCAL_PORT = int(os.getenv("LOCAL_PORT", "8000"))
