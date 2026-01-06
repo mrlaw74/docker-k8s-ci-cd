@@ -21,7 +21,7 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} .'
+        sh 'docker build -f docker/Dockerfile -t ${DOCKER_IMAGE}:${IMAGE_TAG} .'
       }
     }
 
@@ -56,8 +56,8 @@ pipeline {
                 sh '''
                 export KUBECONFIG=$KUBECONFIG
                 kubectl get nodes
-                sed -i "s|DOCKER_IMAGE|${DOCKER_IMAGE}:${IMAGE_TAG}|g" k8s/deployment.yaml
-                kubectl apply -f k8s/deployment.yaml
+                sed -i "s|DOCKER_IMAGE|${DOCKER_IMAGE}:${IMAGE_TAG}|g" config/k8s/deployment.yaml
+                kubectl apply -f config/k8s/deployment.yaml
                 '''
             }
         }
